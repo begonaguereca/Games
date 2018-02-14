@@ -1,31 +1,45 @@
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/test');
 
-var db = mongoose.connection;
-
-db.on('error', function() {
-  console.log('mongoose connection error');
-});
-
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
-  console.log('mongoose connected successfully');
+  console.log('connected to mongoose!')
 });
 
-var itemSchema = mongoose.Schema({
-  quantity: Number,
-  description: String
+
+const newUser = mongoose.Schema({
+  email: String,
+  password: String
 });
 
-var Item = mongoose.model('Item', itemSchema);
+const UserOth = mongoose.model('UserOth', newUser);
 
-var selectAll = function(callback) {
-  Item.find({}, function(err, items) {
+
+var saveUser = (userObj, callback) => {
+  console.log('inside db')
+  var newUser = new UserOth({ email: userObj.email, password: userObj.password});
+
+  newUser.save(function(err) {
+    if(err) {
+      callback(err)
+    } else {
+      console.log('New item has been saved!')
+    }
+  });
+
+}
+
+var selectAllUsers = (callback) => {
+  UserOth.find(function(err, result) {
     if(err) {
       callback(err, null);
     } else {
-      callback(null, items);
+      callback(null, result);
     }
   });
-};
+}
 
-module.exports.selectAll = selectAll;
+
+module.exports.saveUser = saveUser;
+module.exports.selectAllUsers = selectAllUsers;
